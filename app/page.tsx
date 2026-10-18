@@ -6,11 +6,13 @@ import Terminal, { TermLine } from '@/components/Terminal';
 type Account = {
   email: string;
   inbox: string;
+  status: true;
   uid: string | null;
   orderId: string | null;
   membershipStatus: string;
   planName: string;
   validUntil: string;
+  features: string[];
 };
 
 export default function Home() {
@@ -69,6 +71,9 @@ export default function Home() {
             setStats({ total: count, success: evt.success, failed: evt.failed });
           } else if (evt.type === 'done') {
             setStats({ total: evt.total, success: evt.success, failed: evt.failed });
+            if (Array.isArray(evt.results) && evt.results.length) {
+              setAccounts(evt.results.filter((r: any) => r.status === true));
+            }
             push('sys', `$ selesai — ${evt.success} ok / ${evt.failed} gagal`);
           }
         }
@@ -81,13 +86,14 @@ export default function Home() {
   };
 
   const copyAll = () => {
-    const t = accounts.map((a) => `${a.email} | ${a.validUntil}`).join('\n');
-    navigator.clipboard.writeText(t);
+    const payload = { total: accounts.length, success: accounts.length, failed: 0, results: accounts };
+    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
     push('sys', '$ disalin');
   };
 
   const downloadJson = () => {
-    const blob = new Blob([JSON.stringify(accounts, null, 2)], { type: 'application/json' });
+    const payload = { total: accounts.length, success: accounts.length, failed: 0, results: accounts };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -197,6 +203,7 @@ export default function Home() {
                 <div className="mt-1 font-mono text-[11px] text-white/35">
                   {new Date(a.validUntil).toLocaleDateString('id-ID')} · {a.uid ?? '-'}
                 </div>
+                <div className="mt-1 font-mono text-[10px] text-white/25 truncate">{a.orderId ?? '-'}</div>
               </div>
             ))}
           </div>
@@ -208,4 +215,4 @@ export default function Home() {
       </footer>
     </main>
   );
-}
+                     }
