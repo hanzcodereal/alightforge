@@ -17,6 +17,7 @@ export async function POST(req: NextRequest) {
 
       let ok = 0;
       let fail = 0;
+      const results: any[] = [];
 
       for (let i = 0; i < count; i++) {
         const n = i + 1;
@@ -24,17 +25,25 @@ export async function POST(req: NextRequest) {
         try {
           const acc = await createAccount();
           ok++;
+          results.push(acc);
           send({ type: 'account', success: ok, failed: fail, data: acc });
           send({ type: 'log', level: 'ok', msg: `[${n}/${count}] ok ${acc.email}` });
         } catch (e: any) {
           fail++;
+          results.push({ status: false, error: e?.message || 'error' });
           send({ type: 'error', success: ok, failed: fail });
           send({ type: 'log', level: 'err', msg: `[${n}/${count}] ${e?.message || 'error'}` });
         }
         if (i < count - 1) await sleep(2000);
       }
 
-      send({ type: 'done', total: count, success: ok, failed: fail });
+      send({
+        type: 'done',
+        total: count,
+        success: ok,
+        failed: fail,
+        results,
+      });
       ctrl.close();
     },
   });
@@ -46,4 +55,4 @@ export async function POST(req: NextRequest) {
       'X-Accel-Buffering': 'no',
     },
   });
-    }
+          }
