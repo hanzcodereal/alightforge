@@ -18,6 +18,19 @@ const HEADERS: Record<string, string> = {
   'content-type': 'application/json',
 };
 
+export const FEATURES = [
+  'Hapus Tanda Air',
+  'Paket Efek Keanggotaan',
+  'Berbagi Paket Proyek',
+  'Fitur Khusus Anggota yang Akan Datang',
+  'Easing Tingkat Lanjut',
+  'Objek Kamera',
+  'Induk Layer',
+  'Penyimpanan cloud (100GB)',
+  'Support 5mb+',
+  'Aman',
+];
+
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function parseSeroval(node: any): any {
@@ -88,7 +101,7 @@ export async function verifyLink(email: string, magicLink: string) {
     uid: d.uid || null,
     orderId: d.orderId || null,
     membershipStatus: 'PREMIUM_ACTIVE',
-    planName: 'Alight Motion Pro',
+    planName: 'Alight Motion Pro / Member',
     validUntil: now.toISOString(),
   };
 }
@@ -145,11 +158,13 @@ async function fetchMagicLink(domain: string, user: string, hp: string, max = 10
 export type AccountResult = {
   email: string;
   inbox: string;
+  status: true;
   uid: string | null;
   orderId: string | null;
   membershipStatus: string;
   planName: string;
   validUntil: string;
+  features: string[];
 };
 
 export async function createAccount(): Promise<AccountResult> {
@@ -164,10 +179,12 @@ export async function createAccount(): Promise<AccountResult> {
   return {
     email,
     inbox: `${BASE_GENEMAIL}/${email}`,
+    status: true,
     uid: v.uid,
     orderId: v.orderId,
     membershipStatus: v.membershipStatus,
     planName: v.planName,
     validUntil: v.validUntil,
+    features: FEATURES,
   };
 }
